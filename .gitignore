@@ -1,0 +1,17 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Secrets & local files
+*.tfvars
+github-oidc-trust.json
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Logs
+*.log
+
