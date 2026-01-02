@@ -145,13 +145,13 @@ resource "aws_lb_listener" "http" {
 
 resource "aws_autoscaling_group" "this" {
   name                = "${var.project_name}-${var.environment}-asg"
-  desired_capacity     = var.desired_capacity
-  max_size             = var.max_capacity
-  min_size             = var.min_capacity
-  health_check_type    = "EC2"
-  vpc_zone_identifier  = var.private_subnet_ids
-  target_group_arns    = [aws_lb_target_group.this.arn]
-  force_delete         = true
+  desired_capacity    = var.desired_capacity
+  max_size            = var.max_capacity
+  min_size            = var.min_capacity
+  health_check_type   = "EC2"
+  vpc_zone_identifier = var.private_subnet_ids
+  target_group_arns   = [aws_lb_target_group.this.arn]
+  force_delete        = true
 
   launch_template {
     id      = aws_launch_template.this.id
