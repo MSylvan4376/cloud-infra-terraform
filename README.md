@@ -1,3 +1,8 @@
+## TL;DR
+
+Production-style AWS infrastructure managed with Terraform using a modular design, remote state (S3 + DynamoDB locking), and GitHub Actions CI/CD.  
+Infrastructure changes are reviewed via pull requests (automatic plan), then safely applied from `main` using OIDC-based AWS authentication and environment-gated approvals.
+
 ## Architecture
 
 This project provisions **production-style AWS infrastructure** using Terraform with a modular design.
