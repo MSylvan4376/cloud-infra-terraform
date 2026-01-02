@@ -6,6 +6,7 @@
 
 # Secrets & local files
 *.tfvars
+!env/dev.tfvars
 github-oidc-trust.json
 
 # OS / editor
