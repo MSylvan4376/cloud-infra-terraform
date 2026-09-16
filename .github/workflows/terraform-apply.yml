@@ -1,8 +1,7 @@
 name: Terraform Apply (main)
 
 on:
-  push:
-    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   id-token: write
