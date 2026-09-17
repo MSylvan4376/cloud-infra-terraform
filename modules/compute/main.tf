@@ -7,7 +7,37 @@ data "aws_ami" "amazon_linux" {
     values = ["al2023-ami-*-x86_64"]
   }
 }
+resource "aws_iam_role" "ec2" {
+  name = "${var.project_name}-${var.environment}-ec2-role"
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-ec2-role"
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_core" {
+  role       = aws_iam_role.ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ec2" {
+  name = "${var.project_name}-${var.environment}-ec2-profile"
+  role = aws_iam_role.ec2.name
+}
 resource "aws_security_group" "alb_sg" {
   name        = "${var.project_name}-${var.environment}-alb-sg"
   description = "ALB security group"
@@ -46,14 +76,6 @@ resource "aws_security_group" "ec2_sg" {
     security_groups = [aws_security_group.alb_sg.id]
   }
 
-  ingress {
-    description = "SSH from allowed CIDR"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -82,6 +104,26 @@ resource "aws_launch_template" "this" {
   name_prefix   = "${var.project_name}-${var.environment}-lt-"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = var.instance_type
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2.name
+  }
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+  }
+
+  block_device_mappings {
+    device_name = data.aws_ami.amazon_linux.root_device_name
+
+    ebs {
+      delete_on_termination = true
+      encrypted             = true
+      volume_type           = "gp3"
+    }
+  }
 
   user_data = base64encode(local.user_data)
 

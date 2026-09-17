@@ -22,6 +22,5 @@ module "database" {
   ec2_sg_id          = module.compute.ec2_sg_id
 
   db_username = var.db_username
-  db_password = var.db_password
 }
 

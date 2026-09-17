@@ -31,9 +31,3 @@ variable "min_capacity" {
   default = 1
 }
 
-# For now keep it open; later we can tighten to your public IP
-variable "allowed_ssh_cidr" {
-  type    = string
-  default = "0.0.0.0/0"
-}
-
