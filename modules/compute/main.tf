@@ -115,6 +115,16 @@ resource "aws_launch_template" "this" {
     http_put_response_hop_limit = 1
   }
 
+  block_device_mappings {
+    device_name = data.aws_ami.amazon_linux.root_device_name
+
+    ebs {
+      delete_on_termination = true
+      encrypted             = true
+      volume_type           = "gp3"
+    }
+  }
+
   user_data = base64encode(local.user_data)
 
   network_interfaces {
