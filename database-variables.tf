@@ -1,9 +1,10 @@
 variable "db_username" {
-  type      = string
-  sensitive = true
-}
+  description = "RDS master username"
+  type        = string
+  default     = "appuser"
 
-variable "db_password" {
-  type      = string
-  sensitive = true
+  validation {
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9_]{0,15}$", var.db_username))
+    error_message = "db_username must begin with a letter, contain only letters, numbers, or underscores, and be no more than 16 characters."
+  }
 }
