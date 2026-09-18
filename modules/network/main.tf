@@ -1,3 +1,5 @@
+#checkov:skip=CKV2_AWS_11:VPC flow logs are omitted to avoid recurring CloudWatch or S3 costs in this portfolio lab
+
 resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -9,6 +11,14 @@ resource "aws_vpc" "this" {
   }
 }
 
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-default-sg"
+    Environment = var.environment
+  }
+}
 data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "public" {

@@ -147,6 +147,7 @@ resource "aws_launch_template" "this" {
     }
   }
 }
+#checkov:skip=CKV_AWS_28:WAF is omitted to avoid additional cost and complexity in this portfolio lab
 
 resource "aws_lb" "this" {
   #checkov:skip=CKV_AWS_150:Deletion protection is disabled so the lab can be torn down
@@ -164,6 +165,8 @@ resource "aws_lb" "this" {
     Environment = var.environment
   }
 }
+
+#checkov:skip=CKV_AWS_378:HTTP is used only for internal traffic between the ALB and EC2 targets
 
 resource "aws_lb_target_group" "this" {
   name     = "${var.project_name}-${var.environment}-tg"
@@ -185,6 +188,9 @@ resource "aws_lb_target_group" "this" {
     Environment = var.environment
   }
 }
+
+#checkov:skip=CKV2_AWS_20:HTTPS redirect requires a domain and validated ACM certificate not included in this lab
+#checkov:skip=CKV_AWS_103:TLS policy does not apply to the intentionally HTTP-only lab listener
 
 resource "aws_lb_listener" "http" {
   #checkov:skip=CKV_AWS_2:HTTPS requires a domain and validated ACM certificate not included in this lab

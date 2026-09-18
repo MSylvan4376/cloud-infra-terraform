@@ -63,9 +63,10 @@ resource "aws_db_instance" "this" {
   parameter_group_name   = aws_db_parameter_group.this.name
   vpc_security_group_ids = [aws_security_group.db_sg.id]
 
-  publicly_accessible = false
-  skip_final_snapshot = true
-  multi_az            = false
+  publicly_accessible   = false
+  copy_tags_to_snapshot = true
+  skip_final_snapshot   = true
+  multi_az              = false
 
   tags = {
     Name        = "${var.project_name}-${var.environment}-db"
