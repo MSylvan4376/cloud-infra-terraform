@@ -39,11 +39,15 @@ resource "aws_iam_instance_profile" "ec2" {
   role = aws_iam_role.ec2.name
 }
 resource "aws_security_group" "alb_sg" {
+  #checkov:skip=CKV_AWS_260:Public HTTP ingress is required for the internet-facing demo ALB
+  #checkov:skip=CKV_AWS_382:Lab ALB retains broad egress; production should restrict egress to application targets
+
   name        = "${var.project_name}-${var.environment}-alb-sg"
   description = "ALB security group"
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "Public HTTP traffic to ALB"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -51,6 +55,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   egress {
+    description = "Outbound traffic from ALB"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -64,6 +69,8 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_security_group" "ec2_sg" {
+  #checkov:skip=CKV_AWS_382:EC2 instances require outbound access through NAT for updates, SSM, and AWS services
+
   name        = "${var.project_name}-${var.environment}-ec2-sg"
   description = "EC2 security group"
   vpc_id      = var.vpc_id
@@ -77,6 +84,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   egress {
+    description = "Outbound traffic for updates, SSM, and AWS services"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -139,19 +147,26 @@ resource "aws_launch_template" "this" {
     }
   }
 }
+#checkov:skip=CKV_AWS_28:WAF is omitted to avoid additional cost and complexity in this portfolio lab
 
 resource "aws_lb" "this" {
-  name               = "${var.project_name}-${var.environment}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = var.public_subnet_ids
+  #checkov:skip=CKV_AWS_150:Deletion protection is disabled so the lab can be torn down
+  #checkov:skip=CKV_AWS_91:Access logging is omitted to avoid a persistent logging bucket in this lab
+
+  name                       = "${var.project_name}-${var.environment}-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  drop_invalid_header_fields = true
+  security_groups            = [aws_security_group.alb_sg.id]
+  subnets                    = var.public_subnet_ids
 
   tags = {
     Name        = "${var.project_name}-${var.environment}-alb"
     Environment = var.environment
   }
 }
+
+#checkov:skip=CKV_AWS_378:HTTP is used only for internal traffic between the ALB and EC2 targets
 
 resource "aws_lb_target_group" "this" {
   name     = "${var.project_name}-${var.environment}-tg"
@@ -174,7 +189,12 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
+#checkov:skip=CKV2_AWS_20:HTTPS redirect requires a domain and validated ACM certificate not included in this lab
+#checkov:skip=CKV_AWS_103:TLS policy does not apply to the intentionally HTTP-only lab listener
+
 resource "aws_lb_listener" "http" {
+  #checkov:skip=CKV_AWS_2:HTTPS requires a domain and validated ACM certificate not included in this lab
+
   load_balancer_arn = aws_lb.this.arn
   port              = 80
   protocol          = "HTTP"
