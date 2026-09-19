@@ -1,4 +1,6 @@
 # AWS Terraform Infrastructure Portfolio
+[![Terraform Plan](https://github.com/MSylvan4376/cloud-infra-terraform/actions/workflows/terraform-plan.yml/badge.svg?event=pull_request)](https://github.com/MSylvan4376/cloud-infra-terraform/actions/workflows/terraform-plan.yml)
+[![Terraform](https://img.shields.io/badge/Terraform-%3E%3D1.5-844FBA?logo=terraform)](https://developer.hashicorp.com/terraform)
 
 A modular AWS infrastructure project that demonstrates production-minded Terraform design, secure CI/CD, remote state management, and automated infrastructure quality checks.
 
