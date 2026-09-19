@@ -36,13 +36,19 @@ jobs:
           python-version: "3.12"
 
       - name: Configure AWS (OIDC)
+        if: github.actor != 'dependabot[bot]'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Terraform Init
+      - name: Terraform Init with remote backend
+        if: github.actor != 'dependabot[bot]'
         run: terraform init -reconfigure
+
+      - name: Terraform Init without remote backend
+        if: github.actor == 'dependabot[bot]'
+        run: terraform init -backend=false
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
@@ -71,4 +77,4 @@ jobs:
 
       - name: Terraform Plan (dev)
         run: terraform plan -var-file=env/dev.tfvars
-
+        if: github.actor != 'dependabot[bot]'
